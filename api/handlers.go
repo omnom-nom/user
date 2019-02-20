@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	//"github.com/ttacon/libphonenumber"
+	"github.com/ttacon/libphonenumber"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -54,7 +54,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err.Error())
 	}
 
-	fmt.Printf("User: %v", user)
+	num, err := libphonenumber.Parse(user.Phone, "US")
+	if err != nil {
+		fmt.Println("Got error parsing number")
+		fmt.Println(err.Error())
+	}
+	if !libphonenumber.IsValidNumber(num) {
+		fmt.Println("Got error is valid number")
+		fmt.Println(err.Error())
+	}
 
 	av, err := dynamodbattribute.MarshalMap(user)
 	if err != nil {
@@ -67,9 +75,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		TableName: aws.String("Users"),
 	}
 
-	fmt.Printf("\nUser3: %v", input)
-
-	fmt.Println(GetEnvInstance().Db)
 
 	_, err = GetEnvInstance().Db.PutItem(input)
 	if err != nil {
@@ -77,5 +82,5 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err.Error())
 	}
 
-	fmt.Println("Successfully added 'The Big New Movie' (2015) to Movies table")
+	fmt.Println("Success")
 }
