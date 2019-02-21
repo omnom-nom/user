@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/throttled/throttled"
+	//"github.com/throttled/throttled"
 
         "github.com/omnom-nom/apiserver"
 )
@@ -85,8 +85,9 @@ func Init() error {
                 return fmt.Errorf("failed to do factory make: %v", err)
         }
 
-	quota := throttled.RateQuota{MaxRate: throttled.PerMin(20), MaxBurst: 5}
-        httpServer, err := apiserver.New(secureMux, apiserver.ServerAddress(fmt.Sprintf("%s:%d", "0.0.0.0", 8080)), apiserver.ServerThrottlingQuota(quota))
+	//quota := &throttled.RateQuota{MaxRate: throttled.PerMin(20), MaxBurst: 5}
+        //httpServer, err := apiserver.New(secureMux, apiserver.ServerAddress(fmt.Sprintf("%s:%d", "0.0.0.0", 8080)), apiserver.ServerThrottlingQuota(quota))
+        httpServer, err := apiserver.New(secureMux, apiserver.ServerAddress(fmt.Sprintf("%s:%d", "0.0.0.0", 8080)))
         if err != nil {
                 log.Errorf("failed to create HTTP API server: %v",err)
                 return fmt.Errorf("failed to create HTTP API server: %s", err)
