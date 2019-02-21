@@ -85,21 +85,24 @@ func Init() error {
                 return fmt.Errorf("failed to do factory make: %v", err)
         }
 
+	certFile := "deployment/dev/public.pem"
+	keyFile := "deployment/dev/private.pem"
 	//quota := &throttled.RateQuota{MaxRate: throttled.PerMin(20), MaxBurst: 5}
-        //httpServer, err := apiserver.New(secureMux, apiserver.ServerAddress(fmt.Sprintf("%s:%d", "0.0.0.0", 8080)), apiserver.ServerThrottlingQuota(quota))
-        httpServer, err := apiserver.New(secureMux, apiserver.ServerAddress(fmt.Sprintf("%s:%d", "0.0.0.0", 8080)))
+        //httpsServer, err := apiserver.New(secureMux, apiserver.ServerAddress(fmt.Sprintf("%s:%d", "0.0.0.0", 8080)), apiserver.ServerThrottlingQuota(quota))
+        httpsServer, err := apiserver.New(secureMux, apiserver.ServerAddress(fmt.Sprintf("%s:%d", "0.0.0.0", 8443)),
+					 apiserver.ServerCertificateFile(certFile, keyFile))
         if err != nil {
                 log.Errorf("failed to create HTTP API server: %v",err)
                 return fmt.Errorf("failed to create HTTP API server: %s", err)
         }
 
-        if err = httpServer.StartHTTP(); err != nil {
+        if err = httpsServer.StartHTTPS(); err != nil {
                 log.Errorf("failed to start HTTPS API server: %s", err)
                 return fmt.Errorf("failed to start HTTPS API server: %v", err)
         }
         defer func() {
-                if !httpServer.IsStopped() {
-                        if err := httpServer.Stop(); err != nil {
+                if !httpsServer.IsStopped() {
+                        if err := httpsServer.Stop(); err != nil {
                                 errMsg := fmt.Sprintf("failed to stop HTTP server: %s", err)
                                 fmt.Println(errMsg)
                         }
@@ -108,10 +111,10 @@ func Init() error {
 
 	waitUntil := time.Now().Add(APIServerStartupTimeout)
         for waitUntil.After(time.Now()) {
-                if httpServer.IsRunning() {
+                if httpsServer.IsRunning() {
                         break
                 }
-                if httpServer.IsStopped() {
+                if httpsServer.IsStopped() {
                         log.Error("http server has stopped, can not continue")
                         return fmt.Errorf("http server has stopped, can not continue")
                 }
@@ -120,12 +123,12 @@ func Init() error {
                 time.Sleep(APIServerStartupWaitPause)
         }
 
-        if !httpServer.IsRunning() {
+        if !httpsServer.IsRunning() {
                 log.Error("http server is not running")
                 return fmt.Errorf("http server is not running after %s", APIServerStartupTimeout)
         }
 
-        log.Infof("http server is running: %s", httpServer.Endpoint())
+        log.Infof("https server is running: %s", httpsServer.Endpoint())
 
 	for {
                 time.Sleep(120 * time.Second)
