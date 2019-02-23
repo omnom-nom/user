@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/omnom-nom/apiserver"
+	"github.com/omnom-nom/user/handlers"
 )
 
 const (
@@ -15,8 +16,8 @@ const (
 var v1Prefix = fmt.Sprintf("%s/%s", Apiv1, ApiServiceType)
 var routes = map[string][]apiserver.Route{
 	v1Prefix: {
-		{ Name: "HealthCheck",  Method: http.MethodGet,         Path: "healthcheck",            Handler: HealthCheck},
-		{ Name: "CreateUser",	Method: http.MethodPost,	Path: "create",		Handler: CreateUser},
+		{ Name: "Health",	Method: http.MethodGet,         Path: "health",         Handler: handlers.HealthCheck},
+		{ Name: "CreateUser",	Method: http.MethodPost,	Path: "create",		Handler: handlers.CreateUser},
 	//	{ Name: "DeleteUser",	Method: http.MethodDelete,	Path: "{email}",	Handler: DeleteUser},
 	//	{ Name: "GetUser",	Method: http.MethodGet,		Path: "{email}",	Handler: GetUser},
 	},

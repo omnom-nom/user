@@ -4,12 +4,8 @@ import (
         "fmt"
         "net/http"
         "time"
-	"sync"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	//"github.com/throttled/throttled"
 
         "github.com/omnom-nom/apiserver"
@@ -21,14 +17,6 @@ const (
         // APIServerStartupWaitPause ...
         APIServerStartupWaitPause = 500 * time.Millisecond
 
-	DbIP = "192.168.1.101"
-	DbPort = "8000"
-	DbZone = "us-west-2"
-)
-
-var (
-	env  *EnvSingleton
-	once sync.Once
 )
 
 func handleCrash(w http.ResponseWriter) {
@@ -39,35 +27,7 @@ func handleCrash(w http.ResponseWriter) {
         log.Error(crash)
 }
 
-func initDb() *ApiDb {
-
-	dbUrl := fmt.Sprintf("http://%s:%s", DbIP, DbPort)
-
-	config := &aws.Config{
-		Region:   aws.String(DbZone),
-		Endpoint: aws.String(dbUrl),
-	}
-
-	sess := session.Must(session.NewSession(config))
-
-	return &ApiDb{dynamodb.New(sess)}
-}
-
-
-func GetEnvInstance() *EnvSingleton {
-
-	once.Do(func() {
-		env = &EnvSingleton{
-			Db: initDb(),
-		}
-	})
-
-	return env
-}
-
 func Init() error {
-
-	env = GetEnvInstance()
 
 	httpsServer, httpServer, err := makeAPIServers()
 	if err != nil {
