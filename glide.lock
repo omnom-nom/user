@@ -1,5 +1,5 @@
 hash: 289e0e21180a233ed559ba1413acf897b84c6c850649693d2e6ea8b7e5ab11ae
-updated: 2019-02-19T21:25:26.939365622-08:00
+updated: 2019-02-22T23:34:28.14640299-08:00
 imports:
 - name: github.com/aws/aws-sdk-go
   version: 3f2533cffbce7bb8fbee965a2ae25a3a150b2ef2
@@ -37,6 +37,7 @@ imports:
   - private/protocol/xml/xmlutil
   - service/dynamodb
   - service/dynamodb/dynamodbattribute
+  - service/kms
   - service/sts
 - name: github.com/golang/protobuf
   version: c823c79ea1570fb5ff454033735a8e68575d1d0f

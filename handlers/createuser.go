@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/kms"
 )
 
 type Address struct {
@@ -22,11 +23,28 @@ type Address struct {
 	StreetAddress	string `json:"streetAddress"`
 }
 
+type Payment struct {
+	CardAlias	string	`json:"cardalias, omitempty"`
+	NameOnCard	string	`json:"nameOnCard"`
+	AddressOnCard	Address	`json:"addressOnCard"`
+	CardExpiry	string	`json:"cardExpiry"`
+	CardCVV		string  `json:"cvv"`
+}
+
 type UserRequest struct {
-	Name		string		`json:"name"`
 	Email		string		`json:"email"`
 	Phone		string		`json:"phone"`
+	Name		string		`json:"name"`
 	Address		Address		`json:"address"`
+	Payment		Payment		`json:"payment, omitempty"`
+}
+
+type Item struct {
+	Email		string	`json:"email"`
+	Phone		string	`json:"phone"`
+	Name		string	`json:"name"`
+	Address		[]byte	`json:"address"`
+	Payment		[]byte	`json:"payment"`
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +62,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	av, err := dynamodbattribute.MarshalMap(user)
+	item := Item{
+		Email: user.Email,
+		Phone: user.Phone,
+		Name: user.Name,
+		Address: encryptData(user.Address),
+		Payment: encryptData(user.Payment),
+	}
+
+	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
 		log.Errorf("Error marshaling to dynamoDb attribute: %s", err.Error())
 		writeHTTPError(w, http.StatusInternalServerError, err)
@@ -63,9 +89,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Infof("Success inserting item into db table")
+	log.Infof("Successfuly inserting item into db table")
 }
-
 
 func validatePhone(phone, country string) (bool, error) {
 	log.Infof("Validating phone: %s", phone)
@@ -82,4 +107,20 @@ func validatePhone(phone, country string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func encryptData(d interface{}) []byte {
+
+	data, err := json.Marshal(d)
+        if err != nil {
+                log.Errorf("Response data conversion to json failed: %s", err)
+                return nil
+        }
+
+	ra, err := GetEnvInstance().Kms.Encrypt(&kms.EncryptInput{
+		KeyId: aws.String("alias/db"),
+		Plaintext: []byte(data),
+	})
+
+	return ra.CiphertextBlob
 }

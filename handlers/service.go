@@ -6,6 +6,7 @@ import (
         "github.com/aws/aws-sdk-go/aws"
         "github.com/aws/aws-sdk-go/aws/session"
         "github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/kms"
 )
 
 const (
@@ -20,27 +21,21 @@ var (
         once sync.Once
 )
 
-func initDb() *ApiDb {
-
-        //dbUrl := fmt.Sprintf("http://%s:%s", DbIP, DbPort)
-
-        config := &aws.Config{
-                Region:   aws.String(dbZone),
-                //Endpoint: aws.String(dbUrl),
-        }
-
-        sess := session.Must(session.NewSession(config))
-
-	return &ApiDb{dynamodb.New(sess)}
-}
-
 
 func GetEnvInstance() *EnvSingleton {
 
         once.Do(func() {
+		//dbUrl := fmt.Sprintf("http://%s:%s", DbIP, DbPort)
+		config := &aws.Config{
+			Region:   aws.String(dbZone),
+			//Endpoint: aws.String(dbUrl),
+		}
+		sess := session.Must(session.NewSession(config))
+
                 env = &EnvSingleton{
-                        Db: initDb(),
 			tableName: dbTableName,
+                        Db: dynamodb.New(sess),
+			Kms: kms.New(sess),
                 }
         })
 
