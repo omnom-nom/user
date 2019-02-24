@@ -1,5 +1,5 @@
 hash: 289e0e21180a233ed559ba1413acf897b84c6c850649693d2e6ea8b7e5ab11ae
-updated: 2019-02-22T23:34:28.14640299-08:00
+updated: 2019-02-24T15:41:07.295289439-08:00
 imports:
 - name: github.com/aws/aws-sdk-go
   version: 3f2533cffbce7bb8fbee965a2ae25a3a150b2ef2
@@ -55,6 +55,8 @@ imports:
   version: c2b33e8439af944379acbdd9c3a5fe0bc44bd8a5
 - name: github.com/konsorten/go-windows-terminal-sequences
   version: 5c8c8bd35d3832f5d134ae1e1e375b69a4d25242
+- name: github.com/mitchellh/mapstructure
+  version: 3536a929edddb9a5b34bd6861dc4a9647cb459fe
 - name: github.com/omnom-nom/apiserver
   version: 5a13bb11ba3baaf022bf602dd15032407d62b477
 - name: github.com/sirupsen/logrus

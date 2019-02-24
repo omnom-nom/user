@@ -14,39 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/kms"
 )
 
-type Address struct {
-	City		string `json:"city"`
-	State		string `json:"state"`
-	Country		string `json:"country"`
-	PinCode		string `json:"pincode"`
-	PoBox		string `json:"pobox, omitempty"`
-	StreetAddress	string `json:"streetAddress"`
-}
-
-type Payment struct {
-	CardAlias	string	`json:"cardalias, omitempty"`
-	NameOnCard	string	`json:"nameOnCard"`
-	AddressOnCard	Address	`json:"addressOnCard"`
-	CardExpiry	string	`json:"cardExpiry"`
-	CardCVV		string  `json:"cvv"`
-}
-
-type UserRequest struct {
-	Email		string		`json:"email"`
-	Phone		string		`json:"phone"`
-	Name		string		`json:"name"`
-	Address		Address		`json:"address"`
-	Payment		Payment		`json:"payment, omitempty"`
-}
-
-type Item struct {
-	Email		string	`json:"email"`
-	Phone		string	`json:"phone"`
-	Name		string	`json:"name"`
-	Address		[]byte	`json:"address"`
-	Payment		[]byte	`json:"payment"`
-}
-
 func CreateUser(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Content-Type", "application/json")
 
@@ -67,7 +34,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Phone: user.Phone,
 		Name: user.Name,
 		Address: encryptData(user.Address),
-		Payment: encryptData(user.Payment),
 	}
 
 	av, err := dynamodbattribute.MarshalMap(item)
